@@ -8,19 +8,20 @@ Entry for the [make.fun bounty news-image-20261118](https://make.fun/bounty/news
 a program that draws one newspaper front-page image summing up Wednesday
 18 November 2026 world news to `/output/entry.png`.
 
-The front page carries 34 verified stories: 15 illustrated cards and 19
-more in the numbered list, across Europe, the Middle East, Asia, Africa,
-the Americas, Oceania and the world. The day's biggest stories are the
-Xi-Putin meeting in Shenzhen a day before Trump joins them, Iran striking
-Kuwait and Bahrain after the US strike on Qeshm Island, the Crimea bridge
-road span falling, Russian strikes on Odesa, Israeli tanks crossing the
-Gaza ceasefire line, Mary Peltola winning Alaska and a 56-44 Democratic
-Senate majority, the US losing its measles elimination status, Nvidia
-reporting $115.8bn in quarterly sales, and Anthropic pricing its IPO at
-$83 a share. Every story was checked against its source page for the 18
-November date; disputed claims are labelled CLAIM, and the DATE CHECK
-strip names the near-miss stories that were left out because they
-belong to 17 November.
+The front page carries 40 verified stories: 13 illustrated cards (3
+large, 10 medium) with woodcut-style illustrations generated for
+this page, and 27 more in the numbered list, across Europe, the
+Middle East, Asia, Africa, the Americas, Oceania and the world. The
+day's biggest stories are Xi greeting Trump on the Shenzhen tarmac
+a day before a first three-way summit with Putin, Iran striking
+Kuwait and Bahrain after the US strike on Qeshm Island, and Voyager
+1 passing one light-day from Earth. The Crimea bridge span, struck
+17 November with the collapse confirmed 18 November, leaves the top
+cards and is named in the DATE CHECK box instead. Every story was
+checked against its source page for the 18 November date; disputed
+claims are labelled CLAIM, and the DATE CHECK strip names the
+near-miss stories that were left out because they belong to
+17 November.
 
 ## Run it
 
