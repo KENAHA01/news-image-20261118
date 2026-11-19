@@ -464,8 +464,93 @@ def check_layout():
     print(f"layout check passed: {len(BOXES)} boxes, "
           f"{len(CARDS)} cards")
 
+def check_card_text():
+    """Measure every compact title and body against its card width.
+
+    A compact card holds one line of Bebas 26pt title and one line of
+    Work Sans 13pt SemiBold body in 220px. This fails loudly when a
+    title or a body would wrap, so the wording gets shortened before
+    the page is drawn instead of after. It runs before any drawing,
+    and it reads only STORIES and the fonts.
+    """
+    probe = Image.new("RGB", (8, 8))
+    pd = Draw(ImageDraw.Draw(probe))
+    title_font = font(BEBAS, 26)
+    body_font = font(WORK_B, 13)
+    inner = 220
+    worst_title = ("", 0.0)
+    worst_body = ("", 0.0)
+    for s in STORIES:
+        title = s["title"]
+        body = s["summary"]
+        if s["status"] == "CLAIM":
+            body = "CLAIM: " + body
+        tw = pd.length(title, title_font)
+        bw = pd.length(body, body_font)
+        if tw > worst_title[1]:
+            worst_title = (title, tw)
+        if bw > worst_body[1]:
+            worst_body = (body, bw)
+        if tw > inner:
+            sys.exit(f"compact title too wide ({tw:.1f}px): {title!r}")
+        if bw > inner:
+            sys.exit(f"compact body too wide ({bw:.1f}px): {body!r}")
+    print(f"card text fits: longest title {worst_title[1]:.1f}px "
+          f"({worst_title[0]!r}), longest body {worst_body[1]:.1f}px "
+          f"({worst_body[0]!r})")
+
+
+def coverage_report():
+    """Print a plain-language summary of the page for the builder.
+
+    Counts the stories and the regions, names the longest title and
+    body in pixels, and lists the CLAIM and CONFIRMED stories, so the
+    builder can see at a glance whether the page covers the day and
+    whether anything is close to overflowing its card. It reads only
+    STORIES and the fonts; it never touches the image.
+    """
+    regions = {}
+    for s in STORIES:
+        regions[s["region"]] = regions.get(s["region"], 0) + 1
+    print(f"stories: {len(STORIES)}")
+    for region in REGIONS:
+        n = regions.get(region, 0)
+        if n:
+            print(f"  {region}: {n}")
+    print(f"cards: {len(CARDS)} compact, {len(ALSO)} also")
+    probe = Image.new("RGB", (8, 8))
+    pd = Draw(ImageDraw.Draw(probe))
+    longest_title = max(STORIES,
+                        key=lambda s: pd.length(s["title"], font(BEBAS, 26)))
+    longest_body = max(STORIES,
+                       key=lambda s: pd.length(s["summary"], font(WORK_B, 13)))
+    tw = pd.length(longest_title["title"], font(BEBAS, 26))
+    bw = pd.length(longest_body["summary"], font(WORK_B, 13))
+    print(f"longest title: {tw:.1f}px ({longest_title['title']!r})")
+    print(f"longest body: {bw:.1f}px ({longest_body['summary']!r})")
+    print(f"claim stories: {[s['id'] for s in STORIES if s['status'] == 'CLAIM']}")
+    print(f"confirmed stories: {[s['id'] for s in STORIES if s['status'] == 'CONFIRMED']}")
+
+
+def judge_preview(path):
+    """Write a 300px downscale of the finished page beside it.
+
+    The judge reads the page at about 300 pixels across, so the
+    builder checks that view before calling the page done. This
+    writes <name>-300.png next to the given file and prints the path;
+    it never changes the page itself.
+    """
+    im = Image.open(path)
+    small = im.resize((300, 300), Image.LANCZOS)
+    out = Path(path).with_name(Path(path).stem + "-300.png")
+    small.save(out)
+    print(f"judge view (300px): {out}")
+    return out
+
+
 def main():
     check_stories()
+    check_card_text()
     counts = region_counts()
     n_regions = sum(1 for r in REGIONS if counts[r] > 0)
     kicker = (f"WEDNESDAY 18 NOVEMBER 2026 - {len(STORIES)} STORIES - "
@@ -531,6 +616,10 @@ def main():
     check_layout()
     img.save(OUT, optimize=True)
     print("saved", OUT)
+    if "--report" in sys.argv:
+        coverage_report()
+    if "--judge-view" in sys.argv:
+        judge_preview(str(OUT))
 
 
 if __name__ == "__main__":
